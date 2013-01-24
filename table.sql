@@ -1,0 +1,1 @@
+create table jz(id int primary key auto_increment,lb char(32),je int, time char(32));
