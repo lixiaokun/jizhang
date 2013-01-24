@@ -1,33 +1,22 @@
-<?php
-	header('Content-type: text/html;charset=utf-8');
-	$link = mysql_connect('localhost','root','123456');
-	mysql_select_db('test');
-	$sql = 'select * from jz';
-	$result = mysql_query($sql);
-	$total = 0;
-	$month = 0;
-	date_default_timezone_set("PRC");
-	while(list($id,$lb,$je,$time) = mysql_fetch_array($result,MYSQL_NUM)){
-		$total += $je;
-		//$c_time = date("Y-m-d H:i:s",$time);
-		//$c_html .= "$lb : <b style='color:red'>$je ￥</b> $c_time <a href = 'del.php?id=$id'>X</a><br>";
-	}
-?>
 <!DOCTYPE html>
 <html>
 <head>
 	<title></title>
 	<script src = './jquery.js'></script>
 	<style>
-		#main{width:400px;margin:0 0 0 200px;text-align: center;float: left;}
+		#main{width:400px;margin:50px 0 0 200px;text-align: center;float: left;}
 		#add,#bc{margin-top: 10px;padding-top:0px;}
-		#check{width:400px;height:200px;margin:0 0 0 150px;float: left;}
-		#check select{margin-bottom:10px;margin-right: 10px}
+		#check{width:400px;height:200px;margin:50px 0 0 150px;float: left;}
+		#check select{margin-bottom:10px;}
+		#content table{text-align: right;border-collapse: collapse;}
+		table,td,tr,th{border-color: #ccc;}
+		table th{text-align: center}
+		.td3{text-align: center}
+		.clone{margin-top:5px;}
 	</style>
 </head>
 <body>
 	<div id = 'main'>
-		<h1>add</h1>
 		<form name = 'jz' method = 'post' action = 'jz.php'>
 		<div class = 'clone'>	
 		  类别：<select id = 'select' name = 'lb[]'></select>　
@@ -37,12 +26,13 @@
 			<input type = 'button' value = '添加类别' id = 'addlb'>
 			<input type = 'submit' value = '保存' id = 'bc'>
 		</form>
+		<br>
 		今日总额：<input type = text id = 'today' size = 5 readonly>
 		今月总额：<input type = text id = 'month' size = 5 readonly>
 		当前总额：<input type = text id = 'total' size = 5 readonly value = '<?php  echo $total;?>'>
 	</div>
 	<div id = 'check'>
-		<center><h1>check</h1></center>
+		搜索:
 		<select id = 'c_month'>
 			<option>选择月</option>
 			<?php
@@ -88,8 +78,9 @@
 		        	trans[t] = v;
 		        }
 	        	$('#select').html(s_html);
+	        	return trans;
         	}
-        	updateSelect();
+        	var trans = updateSelect();
 			$('#add').click(function(){
 				var jia = 0;
 				for(var i = 0;i < $('.text').length;i++){
@@ -129,12 +120,16 @@
 			$('#c_day').change(function(){
 				var cs = $('#c_month').val() + '-' + $(this).val();
 				$.get('./check.php?date='+cs,function(data){
-					//: <b style='color:red'>$je ￥</b> $c_time <a href = 'del.php?id=$id'>X</a><br>
-					var obj = eval('('+ data + ')') , h = '';
+					var obj = eval('('+ data + ')') , h = '<table border=1 width=350><tr><th>类别</th><th>金额</th><th>时间</th><th>操作</th></tr>';
 					for(var i = 0;i < obj.length;i++){
 						var temp = obj[i].split('-');
-						h += temp[0] + ': <b style="color:red">' + temp[1] + '￥</b>　　' + temp[2] + '<a href = "del.php?id=$id">X</a><br>';
+						h += '<tr>';
+						h += '<td>' + trans[temp[0]] + ': </td><td><b style="color:red">' + temp[1] +
+						 '￥</b></td><td class="td3">' + temp[2] + 
+						 '</td><td class="td3"><a title="删除" href = "del.php?id='+ temp[3] +'">X</a> <a href="" title="查看图表">C</a></td>';
+						h += '</tr>';
 					}
+					h += '</table>';
 					$('#content').html(h);
 				});
 			});
@@ -143,8 +138,16 @@
 				var lbpy = prompt('类别拼音：');
 				var s_html = '<option>'+ lbm + '-' + lbpy +'</option>';
 				$.post('writeXml.php',{'w':s_html},function(data){
-					updateSelect();
+					var trans = updateSelect();
+					return trans;
 				});
+				return trans;
+			});
+			$.get('za.php?huoq=1',function(da){
+				var tee = da.split('-');
+				$('#today').val(tee[1]);
+				$('#month').val(tee[0]);
+				$('#total').val(tee[2]);
 			});
 		});
 	</script>

@@ -9,7 +9,7 @@
 	$res = mysql_query($sql);
 	while(list($id,$lb,$je,$time) = mysql_fetch_array($res,MYSQL_NUM)){
 		$c_time = date("Y/m/d H:i:s",$time);
-		$html[]= "$lb-$je-$c_time";
+		$html[]= "$lb-$je-$c_time-$id";
 	}
 	echo json_encode($html);
 ?>
